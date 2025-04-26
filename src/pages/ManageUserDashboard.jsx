@@ -167,11 +167,11 @@ const ManageUsers = () => {
         <div className="p-8">
           {/* Logo Section */}
           <div className="flex justify-between items-center mb-12">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-lg">
-                <span className="text-2xl">👤</span>
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-full mx-auto flex items-center justify-center shadow-lg">
+                <span className="text-xl font-bold text-blue-600">TZ</span>
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
                 Admin Portal
               </h1>
             </div>

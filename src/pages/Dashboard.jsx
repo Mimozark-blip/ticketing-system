@@ -37,6 +37,7 @@ const Dashboard = () => {
   const audioRef = useRef(null);
 
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [todayClosedTickets, setTodayClosedTickets] = useState([]);
 
   useEffect(() => {
     if (!user) return;
@@ -115,6 +116,30 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {
+    if (!user) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const q = query(
+      collection(db, "tickets"),
+      where("userId", "==", user.uid),
+      where("status", "==", "Closed"),
+      where("createdAt", ">=", today)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const closedTicketsToday = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTodayClosedTickets(closedTicketsToday);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
   // Add new state variables
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -152,16 +177,12 @@ const Dashboard = () => {
         <div className="p-8">
           {/* Logo Section */}
           <div className="flex justify-between items-center mb-12">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center">
-                <img
-                  src="/ticket.png"
-                  alt="Logo"
-                  className="w-8 h-8 object-contain"
-                />
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-12 h-12 bg-white rounded-full mx-auto flex items-center justify-center shadow-lg">
+                <span className="text-xl font-bold text-blue-600">TZ</span>
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                TickZys
+              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                Tick Zys
               </h1>
             </div>
             <button
@@ -247,15 +268,15 @@ const Dashboard = () => {
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
               >
                 <Bell className={`w-6 h-6 ${animate ? "animate-shake" : ""}`} />
-                {openTickets.length > 0 && (
+                {todayClosedTickets.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {openTickets.length}
+                    {todayClosedTickets.length}
                   </span>
                 )}
               </button>
               {isHovered && (
                 <div className="absolute -top-2 right-10 mt-2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg whitespace-nowrap">
-                  {openTickets.length} Inprogress tickets
+                  {todayClosedTickets.length} tickets closed today
                 </div>
               )}
             </div>

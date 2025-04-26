@@ -147,7 +147,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="relative flex items-center my-8">
+          <div className="relative flex items-center my-4">
             <div className="flex-grow border-t border-white/10"></div>
             <span className="mx-4 text-white/60 text-sm">or continue with</span>
             <div className="flex-grow border-t border-white/10"></div>
