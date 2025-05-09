@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { db, auth } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const categories = {
@@ -29,13 +29,19 @@ const AddTicketForm = ({ isOpen, onClose }) => {
     const selectedCategory = categories[category] || categories.other;
 
     try {
-      await addDoc(collection(db, "tickets"), {
+      const ticketRef = await addDoc(collection(db, "tickets"), {
         category: selectedCategory.name,
         description,
         status: "Open",
         userId: auth.currentUser?.uid,
         issueColor: selectedCategory.color,
         createdAt: serverTimestamp(),
+        chatRoomId: null,
+      });
+
+      // Update the ticket with its own ID as the chatRoomId
+      await updateDoc(ticketRef, {
+        chatRoomId: ticketRef.id
       });
 
       // Clear form fields

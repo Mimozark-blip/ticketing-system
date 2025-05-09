@@ -13,6 +13,7 @@
     "dayjs": "^1.11.13",
     "firebase": "^11.4.0",
     "flowbite-react": "^0.10.2",
+    "frimousse": "^0.2.0",
     "html2pdf.js": "^0.10.3",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",

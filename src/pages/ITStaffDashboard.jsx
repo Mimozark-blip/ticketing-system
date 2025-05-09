@@ -9,6 +9,8 @@ import {
   query,
   where,
   serverTimestamp,
+  // setDoc,
+  // Add this import
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,22 +21,26 @@ import {
   Bell,
   ChevronDown,
   ListFilter,
+  MessageSquare,
 } from "lucide-react";
 import { getAuth, signOut } from "firebase/auth";
 import { Eye } from "lucide-react";
 import TicketDetailsModal from "../components/TicketDetailsModal";
 import FeedbackForm from "../components/FeedbackForm";
+import CommentForm from "../components/CommentForm";
 
 const ITStaffDashboard = () => {
-  // Add these two lines with your other state declarations
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   const [tickets, setTickets] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [staff, setStaff] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState("All");
+
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [openTickets, setOpenTickets] = useState([]);
   const [isHovered, setIsHovered] = useState(false);
@@ -161,6 +167,11 @@ const ITStaffDashboard = () => {
     setSelectedTicket(ticket);
     setIsViewModalOpen(true);
   };
+
+  // const handleCommentClick = (ticket) => {
+  //   setSelectedTicket(ticket);
+  //   setIsCommentModalOpen(true);
+  // };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -375,15 +386,37 @@ const ITStaffDashboard = () => {
                           <CheckCircle className="w-5 h-5" />
                         </button>
                       ) : (
-                        <button
-                          onClick={() => {
-                            console.log("Clicked Ticket ID:", ticket.id);
-                            handleViewTicket(ticket);
-                          }}
-                          className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors text-blue-600"
-                        >
-                          <Eye className="w-5 h-5" />
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              console.log("Clicked Ticket ID:", ticket.id);
+                              handleViewTicket(ticket);
+                            }}
+                            className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors text-blue-600"
+                            title="View Details"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          {/* Add this button where you want to show the comment icon */}
+                          {ticket.status === "Resolved" && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  // Set the selected ticket first
+                                  setSelectedTicket(ticket);
+                                  setIsChatOpen(true);
+                                } catch (error) {
+                                  console.error(
+                                    "Error creating chat room:",
+                                    error
+                                  );
+                                }
+                              }}
+                            >
+                              <MessageSquare className="w-4 h-4 text-green-600" />
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -425,16 +458,26 @@ const ITStaffDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Add TicketDetailsModal */}
+        <TicketDetailsModal
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          ticket={selectedTicket}
+        />
+
+        {/* Single CommentForm instance */}
+        <CommentForm
+          isOpen={isCommentModalOpen || isChatOpen}
+          onClose={() => {
+            setIsCommentModalOpen(false);
+            setIsChatOpen(false);
+            setSelectedTicket(null);
+          }}
+          ticket={selectedTicket}
+          user={staff}
+        />
       </main>
-      {/* Add the modal component before closing main tag */}
-      <TicketDetailsModal
-        isOpen={isViewModalOpen}
-        onClose={() => {
-          setIsViewModalOpen(false);
-          setSelectedTicket(null);
-        }}
-        ticket={selectedTicket}
-      />
     </div>
   );
 };

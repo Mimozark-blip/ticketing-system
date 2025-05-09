@@ -2,6 +2,7 @@ import "./index.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { Suspense, lazy, useEffect } from "react";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Lazy load pages
 const LoginPage = lazy(() => import("./pages/Login"));
@@ -60,85 +61,87 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
 
-          {/* User Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-            replace
-          />
+            {/* User Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+              replace
+            />
 
-          {/* <Route
-            path="/ticket-dashboard"
-            element={
-              <ProtectedRoute>
-                <TicketDashboard />
-              </ProtectedRoute>
-            }
-          /> */}
+            {/* <Route
+              path="/ticket-dashboard"
+              element={
+                <ProtectedRoute>
+                  <TicketDashboard />
+                </ProtectedRoute>
+              }
+            /> */}
 
-          {/* IT Staff Routes */}
-          <Route
-            path="/it-staff-dashboard"
-            element={
-              <ProtectedRoute>
-                <ITStaffDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/it-staff-report"
-            element={
-              <ProtectedRoute>
-                <ITStaffReport />
-              </ProtectedRoute>
-            }
-          />
+            {/* IT Staff Routes */}
+            <Route
+              path="/it-staff-dashboard"
+              element={
+                <ProtectedRoute>
+                  <ITStaffDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/it-staff-report"
+              element={
+                <ProtectedRoute>
+                  <ITStaffReport />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Admin Routes */}
-          <Route
-            path="/admin-dashboard"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Routes */}
+            <Route
+              path="/admin-dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/manage-users"
-            element={
-              <ProtectedRoute>
-                <ManageUserDashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/manage-users"
+              element={
+                <ProtectedRoute>
+                  <ManageUserDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/admin-reports"
-            element={
-              <ProtectedRoute>
-                <AdminReport />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/admin-reports"
+              element={
+                <ProtectedRoute>
+                  <AdminReport />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/admin-feedback"
-            element={
-              <ProtectedRoute>
-                <AdminFeedback />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+            <Route
+              path="/admin-feedback"
+              element={
+                <ProtectedRoute>
+                  <AdminFeedback />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </ErrorBoundary>
       </Suspense>
     </BrowserRouter>
   );

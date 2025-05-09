@@ -59,6 +59,7 @@ const AdminDashboard = () => {
           console.log("Fetched ticket data:", data);
           return {
             id: doc.id,
+            chatRoomId: data.chatRoomId || "No Room",
             title: data.title || "No Title",
             category: data.category || "Uncategorized",
             description: data.description || "No Description",
@@ -397,6 +398,7 @@ const AdminDashboard = () => {
                               console.log("Clicked Ticket:", ticket); // Debugging log
                               if (ticket.status === "Open") {
                                 setSelectedTicket(ticket); // Set selected ticket
+
                                 setIsModalOpen(true);
                               }
                             }}

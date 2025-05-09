@@ -1,6 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import {
+  // addDoc,
+  // setDoc,
+  collection,
+  onSnapshot,
+  query,
+  where,
+  // serverTimestamp,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -9,6 +17,7 @@ import {
   Bell,
   TicketPlus,
   ListFilter,
+  MessageSquare,
 } from "lucide-react";
 import { getAuth, signOut } from "firebase/auth";
 import AddTicketForm from "../components/AddTicketForm";
@@ -17,7 +26,9 @@ import FeedbackForm from "../components/FeedbackForm";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import ExpandedTicketView from "../components/ExpandedTicketView";
 import UpdateTicketForm from "../components/UpdateTicketForm";
+import CommentDetailsModal from "../components/CommentForm";
 import { deleteDoc, doc } from "firebase/firestore";
+import CommentForm from "../components/CommentForm"; // Add this import
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
@@ -27,6 +38,7 @@ const Dashboard = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); // Add this line
   const navigate = useNavigate();
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
@@ -37,6 +49,8 @@ const Dashboard = () => {
   const audioRef = useRef(null);
 
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+
   const [todayClosedTickets, setTodayClosedTickets] = useState([]);
 
   useEffect(() => {
@@ -354,6 +368,8 @@ const Dashboard = () => {
                         >
                           <Edit className="w-4 h-4 text-yellow-600" />
                         </button>
+                        {/* Add this in your ticket list rendering */}
+
                         <button
                           onClick={() => handleDeleteTicket(ticket.id)}
                           className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -388,7 +404,7 @@ const Dashboard = () => {
                   <div className="flex justify-between items-center mt-4">
                     {/* Status Badge */}
                     <span
-                      className={`inline-block  py-1 text-xs font-medium rounded-full ${
+                      className={`inline-block py-1 text-xs font-medium rounded-full ${
                         ticket.status === "Open"
                           ? "bg-green-100 text-green-700 border border-green-300 px-2"
                           : ticket.status === "In Progress"
@@ -399,25 +415,36 @@ const Dashboard = () => {
                       {ticket.status}
                     </span>
 
-                    {/* Show feedback button if status is "Closed" */}
-                    {ticket.status === "Closed" && (
-                      <button
-                        onClick={() => {
-                          console.log("Selected Ticket:", ticket);
-                          console.log("Selected Ticket ID:", ticket.assignee);
-                          console.log("Selected Ticket Data:", {
-                            category: ticket.category,
-                            status: ticket.status,
-                            comment: ticket.description,
-                          });
-                          setIsFeedbackModalOpen(true);
-                          setSelectedTicket(ticket);
-                        }}
-                        className="bg-blue-500 text-white font-medium py-1 px-3 rounded-full transition shadow-md hover:shadow-lg hover:shadow-blue-500/50"
-                      >
-                        Feedback
-                      </button>
-                    )}
+                    {/* Show feedback button only for Closed tickets, and chat button for Closed and In Progress tickets */}
+                    <div className="flex gap-2">
+                      {ticket.status === "Closed" && (
+                        <button
+                          onClick={() => {
+                            setIsFeedbackModalOpen(true);
+                            setSelectedTicket(ticket);
+                          }}
+                          className="bg-blue-500 text-white font-medium text-xs py-1 px-2 rounded-full transition shadow-md hover:shadow-lg hover:shadow-blue-500/50"
+                        >
+                          Feedback
+                        </button>
+                      )}
+                      {(ticket.status === "Closed" ||
+                        ticket.status === "In Progress") && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              // Set the selected ticket first
+                              setSelectedTicket(ticket);
+                              setIsChatOpen(true);
+                            } catch (error) {
+                              console.error("Error creating chat room:", error);
+                            }
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4 text-green-600" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -460,6 +487,31 @@ const Dashboard = () => {
         ticketId={selectedTicket?.id}
         existingCategory={selectedTicket?.category}
         existingDescription={selectedTicket?.description}
+      />
+
+      <CommentDetailsModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        ticket={selectedTicket}
+      />
+
+      <CommentForm
+        isOpen={isChatOpen}
+        onClose={() => {
+          console.log("Closing chat - Selected Ticket:", selectedTicket);
+          setIsChatOpen(false);
+          setSelectedTicket(null);
+        }}
+        ticket={selectedTicket}
+        user={user}
+      />
+
+      {/* Add the CommentForm modal */}
+      <CommentForm
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        ticket={selectedTicket}
+        user={user}
       />
     </div>
   );

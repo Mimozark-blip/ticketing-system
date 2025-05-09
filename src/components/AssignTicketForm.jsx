@@ -5,7 +5,7 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
+  setDoc,
   serverTimestamp,
   doc,
   updateDoc,
@@ -88,6 +88,7 @@ const AssignTicketForm = ({ isOpen, onClose, selectedTicket }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted");
+    console.log("Selected Ticket:", selectedTicket);
 
     // Check if fields are filled
     if (!assignee) {
@@ -97,15 +98,19 @@ const AssignTicketForm = ({ isOpen, onClose, selectedTicket }) => {
 
     try {
       console.log("Adding ticket to Firestore");
-      await addDoc(collection(db, "assigned-tickets"), {
+      // Create a reference with the specific ID
+      const assignedTicketRef = doc(db, "assigned-tickets", selectedTicket.id);
+      
+      // Set the document with the specified ID
+      await setDoc(assignedTicketRef, {
         category: selectedTicket.category,
         status: "In Progress",
-        assignee: assignee, // Make sure this is included
-        priority: priority, // Make sure this is included
-        description: selectedTicket.description, // Make sure this is included
-        AdminId: auth.currentUser?.uid, // If you want to save the user's ID
+        assignee: assignee,
+        priority: priority,
+        description: selectedTicket.description,
+        AdminId: auth.currentUser?.uid,
         UserId: selectedTicket.id,
-        issueColor: selectedTicket?.issueColor || "default", // If you have color information
+        issueColor: selectedTicket?.issueColor || "default",
         createdAt: serverTimestamp(),
       });
 
@@ -114,7 +119,6 @@ const AssignTicketForm = ({ isOpen, onClose, selectedTicket }) => {
       await updateDoc(ticketRef, { status: "In Progress" });
 
       // Clear the form fields
-
       setAssignee("");
       setPriority("");
       setAssigneeList([]);
