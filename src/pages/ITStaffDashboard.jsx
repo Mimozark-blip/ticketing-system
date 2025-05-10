@@ -352,39 +352,57 @@ const ITStaffDashboard = () => {
                     </div>
                     <div className="flex gap-2">
                       {ticket.status === "In Progress" ? (
-                        <button
-                          onClick={async () => {
-                            try {
-                              console.log("Ticket Object:", ticket);
-                              console.log("Ticket ID:", ticket.id);
-                              console.log("User ID:", ticket.UserId);
+                        <>
+                          <button
+                            onClick={async () => {
+                              try {
+                                console.log("Ticket Object:", ticket);
+                                console.log("Ticket ID:", ticket.id);
+                                console.log("User ID:", ticket.UserId);
 
-                              await updateTicketStatus(ticket.id, "Resolved");
+                                await updateTicketStatus(ticket.id, "Resolved");
 
-                              const ticketRef = doc(
-                                db,
-                                "tickets",
-                                ticket.UserId
-                              );
-                              await updateDoc(ticketRef, {
-                                assignee: staff.email,
-                                feedbackId: ticket.id,
-                                status: "Closed",
-                                updatedAt: serverTimestamp(),
-                              });
+                                const ticketRef = doc(
+                                  db,
+                                  "tickets",
+                                  ticket.UserId
+                                );
+                                await updateDoc(ticketRef, {
+                                  assignee: staff.email,
+                                  feedbackId: ticket.id,
+                                  status: "Closed",
+                                  updatedAt: serverTimestamp(),
+                                });
 
-                              console.log("Status updated successfully");
-                            } catch (error) {
-                              console.error(
-                                "Error updating ticket status:",
-                                error
-                              );
-                            }
-                          }}
-                          className="p-1.5 hover:bg-green-50 rounded-lg transition-colors text-green-600"
-                        >
-                          <CheckCircle className="w-5 h-5" />
-                        </button>
+                                console.log("Status updated successfully");
+                              } catch (error) {
+                                console.error(
+                                  "Error updating ticket status:",
+                                  error
+                                );
+                              }
+                            }}
+                            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors text-green-600"
+                          >
+                            <CheckCircle className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                setSelectedTicket(ticket);
+                                setIsChatOpen(true);
+                              } catch (error) {
+                                console.error(
+                                  "Error creating chat room:",
+                                  error
+                                );
+                              }
+                            }}
+                            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors text-green-600"
+                          >
+                            <MessageSquare className="w-5 h-5" />
+                          </button>
+                        </>
                       ) : (
                         <>
                           <button
